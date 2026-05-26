@@ -16,10 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
-/**
- * Spring Security configuration.
- * Uses session-based authentication with secure cookies.
- */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -36,7 +32,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
-                .maximumSessions(1)
+                .maximumSessions(10)
             )
             .securityContext(context -> context
                 .securityContextRepository(new HttpSessionSecurityContextRepository())
