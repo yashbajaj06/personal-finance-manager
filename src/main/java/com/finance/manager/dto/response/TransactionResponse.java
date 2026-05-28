@@ -2,15 +2,12 @@ package com.finance.manager.dto.response;
 
 import com.finance.manager.entity.TransactionType;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Response body for transaction data.
- */
-@Data
+@Getter
 @Builder
 public class TransactionResponse {
     private Long id;
