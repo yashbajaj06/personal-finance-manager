@@ -36,7 +36,7 @@ class CategoryControllerTest {
     @WithMockUser(username = "user@example.com")
     void getAllCategories_Success() throws Exception {
         CategoryResponse salary = CategoryResponse.builder()
-                .id(1L).name("Salary").type(TransactionType.INCOME).isCustom(false).build();
+                .name("Salary").type(TransactionType.INCOME).isCustom(false).build();
 
         when(categoryService.getAllCategories(any())).thenReturn(List.of(salary));
 
@@ -54,7 +54,7 @@ class CategoryControllerTest {
         request.setType(TransactionType.INCOME);
 
         CategoryResponse response = CategoryResponse.builder()
-                .id(10L).name("SideIncome").type(TransactionType.INCOME).isCustom(true).build();
+                .name("SideIncome").type(TransactionType.INCOME).isCustom(true).build();
 
         when(categoryService.createCustomCategory(any(), any())).thenReturn(response);
 
