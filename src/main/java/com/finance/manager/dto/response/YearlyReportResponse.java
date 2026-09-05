@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 /**
- * Response body for yearly financial report.
+ * Response body for the yearly income/expense report, aggregated by category.
  */
 @Data
 @Builder

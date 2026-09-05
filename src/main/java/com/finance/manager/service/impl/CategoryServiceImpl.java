@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * {@inheritDoc}
+ */
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -82,6 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryResponse toResponse(Category category) {
         return CategoryResponse.builder()
+                .id(category.getId())
                 .name(category.getName())
                 .type(category.getType())
                 .isCustom(category.isCustom())

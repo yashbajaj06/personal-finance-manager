@@ -65,7 +65,7 @@ class TransactionControllerTest {
                 .id(1L).amount(new BigDecimal("500")).date(LocalDate.now())
                 .category("Food").type(TransactionType.EXPENSE).build();
 
-        when(transactionService.getTransactions(any(), any(), any(), any())).thenReturn(List.of(t));
+        when(transactionService.getTransactions(any(), any(), any(), any(), any())).thenReturn(List.of(t));
 
         mockMvc.perform(get("/api/transactions"))
                 .andExpect(status().isOk())

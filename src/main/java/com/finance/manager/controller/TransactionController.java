@@ -3,6 +3,7 @@ package com.finance.manager.controller;
 import com.finance.manager.dto.request.TransactionRequest;
 import com.finance.manager.dto.request.UpdateTransactionRequest;
 import com.finance.manager.dto.response.TransactionResponse;
+import com.finance.manager.entity.TransactionType;
 import com.finance.manager.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles CRUD operations for financial transactions.
+ * REST endpoints for creating, listing (with optional filters), updating,
+ * and deleting the current user's transactions.
  */
 @RestController
 @RequestMapping("/api/transactions")
@@ -29,7 +31,9 @@ public class TransactionController {
 
     /**
      * Creates a new transaction.
-     * POST /api/transactions
+     *
+     * @return 201 Created with the new transaction, or 400 Bad Request for
+     *         a future-dated or otherwise invalid transaction
      */
     @PostMapping
     public ResponseEntity<TransactionResponse> createTransaction(
@@ -40,23 +44,31 @@ public class TransactionController {
     }
 
     /**
-     * Gets all transactions with optional filters.
-     * GET /api/transactions?startDate=&endDate=&categoryId=
+     * Lists the current user's transactions, newest first. All query
+     * parameters are optional and may be combined freely.
+     *
+     * @param startDate  inclusive lower bound on transaction date
+     * @param endDate    inclusive upper bound on transaction date
+     * @param categoryId restrict to a single category, by its id from {@code GET /api/categories}
+     * @param type       restrict to INCOME or EXPENSE transactions
+     * @return 200 OK with the matching transactions
      */
     @GetMapping
     public ResponseEntity<Map<String, List<TransactionResponse>>> getTransactions(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) Long categoryId) {
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) TransactionType type) {
         List<TransactionResponse> transactions = transactionService.getTransactions(
-                userDetails.getUsername(), startDate, endDate, categoryId);
+                userDetails.getUsername(), startDate, endDate, categoryId, type);
         return ResponseEntity.ok(Map.of("transactions", transactions));
     }
 
     /**
-     * Updates a transaction (date cannot be changed).
-     * PUT /api/transactions/{id}
+     * Updates an existing transaction. The transaction's date cannot be changed.
+     *
+     * @return 200 OK with the updated transaction, or 404 Not Found if it doesn't exist for this user
      */
     @PutMapping("/{id}")
     public ResponseEntity<TransactionResponse> updateTransaction(
@@ -68,8 +80,10 @@ public class TransactionController {
     }
 
     /**
-     * Deletes a transaction.
-     * DELETE /api/transactions/{id}
+     * Deletes a transaction. Deleted transactions are excluded from all
+     * future savings goal progress calculations and reports.
+     *
+     * @return 200 OK on success, or 404 Not Found if it doesn't exist for this user
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteTransaction(

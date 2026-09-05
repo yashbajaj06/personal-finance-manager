@@ -11,27 +11,42 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository for Category entity operations.
+ * Data access for {@link Category} entities, covering both system default
+ * categories (no owning user) and per-user custom categories.
  */
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    // Default categories (user is null)
+    /**
+     * @return all system default categories (Salary, Food, Rent, etc.).
+     */
     List<Category> findByUserIsNull();
 
-    // Custom categories for a specific user
+    /**
+     * @return all custom categories belonging to the given user.
+     */
     List<Category> findByUser(User user);
 
-    // Find category by name for a user (custom) or default
+    /**
+     * Resolves a category by name that is either a system default or owned
+     * by the given user, for validating a transaction's category reference.
+     */
     @Query("SELECT c FROM Category c WHERE c.name = :name AND (c.user = :user OR c.user IS NULL)")
     Optional<Category> findByNameAndUserOrDefault(@Param("name") String name, @Param("user") User user);
 
-    // Find custom category by name for a specific user
+    /**
+     * Looks up a custom category by name, scoped to the given user.
+     */
     Optional<Category> findByNameAndUser(String name, User user);
 
-    // Check if custom category name exists for user
+    /**
+     * @return {@code true} if the given user already has a custom category
+     *         with this name.
+     */
     boolean existsByNameAndUser(String name, User user);
 
-    // Find by name (default category)
+    /**
+     * Looks up a system default category by name.
+     */
     Optional<Category> findByNameAndUserIsNull(String name);
 }

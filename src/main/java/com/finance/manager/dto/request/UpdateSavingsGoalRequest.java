@@ -7,7 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Request body for updating a savings goal.
+ * Request body for updating a savings goal's target amount and/or date.
+ * All fields are optional; only non-null fields are applied.
  */
 @Data
 public class UpdateSavingsGoalRequest {

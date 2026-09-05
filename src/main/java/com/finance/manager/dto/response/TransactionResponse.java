@@ -7,6 +7,9 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Response body representing a single transaction.
+ */
 @Getter
 @Builder
 public class TransactionResponse {

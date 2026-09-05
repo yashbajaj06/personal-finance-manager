@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of SavingsGoalService.
- * Progress = (Total Income - Total Expenses) since goal start date.
+ * {@inheritDoc}
  */
 @Service
 @RequiredArgsConstructor

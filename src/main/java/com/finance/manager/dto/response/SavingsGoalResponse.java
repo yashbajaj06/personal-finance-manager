@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Response body for savings goal data including computed progress fields.
+ * Response body for a savings goal, including computed progress fields.
  */
 @Data
 @Builder

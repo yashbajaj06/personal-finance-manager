@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Handles user registration, login, and logout.
+ * REST endpoints for user registration, login, and logout. These are the
+ * only endpoints that do not require an existing authenticated session.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -23,12 +24,23 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Registers a new user account.
+     *
+     * @return 201 Created with the new user's id, or 400/409 on invalid or duplicate input
+     */
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
         Map<String, Object> response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /**
+     * Authenticates a user and starts a session, returning a session cookie
+     * to be used on all subsequent requests.
+     *
+     * @return 200 OK on success, or 401 Unauthorized for invalid credentials
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @Valid @RequestBody LoginRequest request,
@@ -43,6 +55,11 @@ public class AuthController {
         }
     }
 
+    /**
+     * Invalidates the current session.
+     *
+     * @return 200 OK with a confirmation message
+     */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         Map<String, String> response = authService.logout(request);

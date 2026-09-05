@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of ReportService for monthly and yearly financial reports.
+ * {@inheritDoc}
  */
 @Service
 @RequiredArgsConstructor

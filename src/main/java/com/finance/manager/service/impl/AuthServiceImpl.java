@@ -25,7 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementation of AuthService handling registration, login, and logout.
+ * {@inheritDoc}
+ *
+ * Backed by Spring Security's {@link org.springframework.security.authentication.AuthenticationManager}
+ * for credential checking and {@link org.springframework.security.crypto.password.PasswordEncoder}
+ * for password hashing.
  */
 @Service
 @RequiredArgsConstructor

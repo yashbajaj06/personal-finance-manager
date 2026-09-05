@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a user in the system.
- * Username must be a valid email address.
+ * A registered application user. Owns transactions, custom categories, and
+ * savings goals, all of which are isolated from other users.
  */
 @Entity
 @Table(name = "users")

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * Request body for user registration.
+ * Request body for registering a new user account.
  */
 @Data
 public class RegisterRequest {

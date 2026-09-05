@@ -5,14 +5,18 @@ import com.finance.manager.dto.request.UpdateTransactionRequest;
 import com.finance.manager.dto.response.TransactionResponse;
 import com.finance.manager.entity.Category;
 import com.finance.manager.entity.Transaction;
+import com.finance.manager.entity.TransactionType;
 import com.finance.manager.entity.User;
 import com.finance.manager.exception.ResourceNotFoundException;
 import com.finance.manager.exception.ValidationException;
 import com.finance.manager.repository.CategoryRepository;
 import com.finance.manager.repository.TransactionRepository;
+import com.finance.manager.repository.TransactionSpecifications;
 import com.finance.manager.repository.UserRepository;
 import com.finance.manager.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of TransactionService.
+ * {@inheritDoc}
  */
 @Service
 @RequiredArgsConstructor
@@ -56,26 +60,22 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactions(String username, LocalDate startDate, LocalDate endDate, Long categoryId) {
+    public List<TransactionResponse> getTransactions(String username, LocalDate startDate, LocalDate endDate, Long categoryId, TransactionType type) {
         User user = getUser(username);
 
-        List<Transaction> transactions;
-
+        Category category = null;
         if (categoryId != null) {
-            Category category = categoryRepository.findById(categoryId)
+            category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + categoryId));
-
-            if (startDate != null && endDate != null) {
-                transactions = transactionRepository.findByUserAndDateBetweenAndCategoryOrderByDateDesc(
-                        user, startDate, endDate, category);
-            } else {
-                transactions = transactionRepository.findByUserAndCategoryOrderByDateDesc(user, category);
-            }
-        } else if (startDate != null && endDate != null) {
-            transactions = transactionRepository.findByUserAndDateBetweenOrderByDateDesc(user, startDate, endDate);
-        } else {
-            transactions = transactionRepository.findByUserOrderByDateDesc(user);
         }
+
+        Specification<Transaction> spec = Specification
+                .where(TransactionSpecifications.forUser(user))
+                .and(TransactionSpecifications.dateBetween(startDate, endDate))
+                .and(TransactionSpecifications.hasCategory(category))
+                .and(TransactionSpecifications.hasType(type));
+
+        List<Transaction> transactions = transactionRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "date"));
 
         return transactions.stream().map(this::toResponse).collect(Collectors.toList());
     }

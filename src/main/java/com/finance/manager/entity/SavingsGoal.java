@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Represents a user's savings goal.
- * Progress is calculated based on net savings since the start date.
+ * Represents a user's savings goal, tracked as the net of income minus
+ * expenses recorded since {@link #startDate}.
  */
 @Entity
 @Table(name = "savings_goals")

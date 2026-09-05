@@ -6,8 +6,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * Request body for updating a transaction.
- * Date cannot be modified per business rules.
+ * Request body for updating an existing transaction. The transaction date
+ * cannot be changed once created; all fields here are optional.
  */
 @Data
 public class UpdateTransactionRequest {

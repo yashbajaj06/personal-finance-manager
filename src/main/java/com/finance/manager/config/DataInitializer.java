@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Seeds the database with default categories on startup if they don't exist.
+ * Seeds the seven system default categories (Salary, Food, Rent,
+ * Transportation, Entertainment, Healthcare, Utilities) on application
+ * startup, if they do not already exist.
  */
 @Component
 @RequiredArgsConstructor
@@ -20,6 +22,10 @@ public class DataInitializer implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
 
+    /**
+     * Seeds default categories exactly once; subsequent runs are a no-op
+     * once default categories already exist.
+     */
     @Override
     public void run(String... args) {
         List<Category> existingDefaults = categoryRepository.findByUserIsNull();

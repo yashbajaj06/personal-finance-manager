@@ -4,55 +4,65 @@ import com.finance.manager.entity.Category;
 import com.finance.manager.entity.Transaction;
 import com.finance.manager.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository for Transaction entity operations.
+ * Data access for {@link Transaction} entities. Extends
+ * {@link JpaSpecificationExecutor} so that the optional date/category/type
+ * filters on {@code GET /api/transactions} can be combined freely via
+ * {@link TransactionSpecifications}, instead of one derived-query method
+ * per filter combination.
  */
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
 
-    // Get all transactions for a user, newest first
-    List<Transaction> findByUserOrderByDateDesc(User user);
-
-    // Filter by date range
-    List<Transaction> findByUserAndDateBetweenOrderByDateDesc(User user, LocalDate start, LocalDate end);
-
-    // Filter by category
-    List<Transaction> findByUserAndCategoryOrderByDateDesc(User user, Category category);
-
-    // Filter by date range and category
-    List<Transaction> findByUserAndDateBetweenAndCategoryOrderByDateDesc(
-            User user, LocalDate start, LocalDate end, Category category);
-
-    // Find by id and user (for security - ensure user owns the transaction)
+    /**
+     * Looks up a single transaction by id, scoped to the given user, so
+     * that one user can never retrieve or modify another user's transaction.
+     */
     Optional<Transaction> findByIdAndUser(Long id, User user);
 
-    // Check if any transaction uses this category
+    /**
+     * @return {@code true} if any transaction still references this category,
+     *         used to block deletion of in-use custom categories.
+     */
     boolean existsByCategory(Category category);
 
-    // For savings goals: sum income/expenses since a date for a user
+    /**
+     * Sums all INCOME transaction amounts for the user on or after the given date.
+     */
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.date >= :startDate AND t.category.type = 'INCOME'")
-    java.math.BigDecimal sumIncomeByUserSinceDate(@Param("user") User user, @Param("startDate") LocalDate startDate);
+    BigDecimal sumIncomeByUserSinceDate(@Param("user") User user, @Param("startDate") LocalDate startDate);
 
+    /**
+     * Sums all EXPENSE transaction amounts for the user on or after the given date.
+     */
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.date >= :startDate AND t.category.type = 'EXPENSE'")
-    java.math.BigDecimal sumExpensesByUserSinceDate(@Param("user") User user, @Param("startDate") LocalDate startDate);
+    BigDecimal sumExpensesByUserSinceDate(@Param("user") User user, @Param("startDate") LocalDate startDate);
 
-    // For monthly reports
+    /**
+     * @return all of the user's transactions falling within the given month/year,
+     *         used to build the monthly report.
+     */
     @Query("SELECT t FROM Transaction t WHERE t.user = :user " +
            "AND YEAR(t.date) = :year AND MONTH(t.date) = :month")
     List<Transaction> findByUserAndYearAndMonth(
             @Param("user") User user, @Param("year") int year, @Param("month") int month);
 
-    // For yearly reports
+    /**
+     * @return all of the user's transactions falling within the given year,
+     *         used to build the yearly report.
+     */
     @Query("SELECT t FROM Transaction t WHERE t.user = :user AND YEAR(t.date) = :year")
     List<Transaction> findByUserAndYear(@Param("user") User user, @Param("year") int year);
 }

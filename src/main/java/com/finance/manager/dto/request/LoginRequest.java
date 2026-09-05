@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * Request body for user login.
+ * Request body for authenticating an existing user.
  */
 @Data
 public class LoginRequest {

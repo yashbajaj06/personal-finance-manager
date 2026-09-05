@@ -10,7 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Represents a financial transaction (income or expense).
+ * Represents a single income or expense transaction belonging to a user.
+ * The transaction's type (INCOME/EXPENSE) is derived from its {@link Category}.
  */
 @Entity
 @Table(name = "transactions")

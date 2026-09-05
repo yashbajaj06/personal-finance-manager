@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Provides monthly and yearly financial reports.
+ * REST endpoints for the current user's monthly and yearly income/expense reports.
  */
 @RestController
 @RequestMapping("/api/reports")
@@ -21,8 +21,8 @@ public class ReportController {
     private final ReportService reportService;
 
     /**
-     * Gets monthly report for a specific year/month.
-     * GET /api/reports/monthly/{year}/{month}
+     * @return 200 OK with income/expense totals by category and net savings
+     *         for the given month, or 400 Bad Request if month is not 1-12
      */
     @GetMapping("/monthly/{year}/{month}")
     public ResponseEntity<MonthlyReportResponse> getMonthlyReport(
@@ -37,8 +37,8 @@ public class ReportController {
     }
 
     /**
-     * Gets yearly report for a specific year.
-     * GET /api/reports/yearly/{year}
+     * @return 200 OK with income/expense totals by category and net savings
+     *         for the given year
      */
     @GetMapping("/yearly/{year}")
     public ResponseEntity<YearlyReportResponse> getYearlyReport(

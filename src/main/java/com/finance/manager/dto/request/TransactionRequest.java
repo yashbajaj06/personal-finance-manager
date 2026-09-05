@@ -9,6 +9,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Request body for creating a new transaction.
+ */
 @Data
 public class TransactionRequest {
 

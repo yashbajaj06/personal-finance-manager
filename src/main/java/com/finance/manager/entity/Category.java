@@ -7,8 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents a transaction category.
- * Can be a default system category or a custom user-defined one.
+ * Represents an income or expense category. Includes the seven system-provided
+ * default categories (Salary, Food, Rent, Transportation, Entertainment,
+ * Healthcare, Utilities) as well as per-user custom categories.
  */
 @Entity
 @Table(name = "categories")
@@ -29,7 +30,6 @@ public class Category {
     @Column(nullable = false)
     private TransactionType type;
 
-    // null for default categories, set for custom categories
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -39,7 +39,8 @@ public class Category {
     private boolean isCustom = false;
 
     /**
-     * Checks if this is a default (system) category.
+     * @return {@code true} if this is a system default category that cannot
+     *         be modified or deleted by any user.
      */
     public boolean isDefault() {
         return !isCustom;

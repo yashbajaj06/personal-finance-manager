@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles category management (default and custom categories).
+ * REST endpoints for viewing system default categories and managing the
+ * current user's custom categories.
  */
 @RestController
 @RequestMapping("/api/categories")
@@ -25,8 +26,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     /**
-     * Gets all categories (default + user's custom).
-     * GET /api/categories
+     * @return 200 OK with the system default categories plus the current
+     *         user's custom categories, each including its id
      */
     @GetMapping
     public ResponseEntity<Map<String, List<CategoryResponse>>> getAllCategories(
@@ -36,8 +37,9 @@ public class CategoryController {
     }
 
     /**
-     * Creates a custom category for the current user.
-     * POST /api/categories
+     * Creates a new custom category for the current user.
+     *
+     * @return 201 Created with the new category, or 409 Conflict if the name is already in use
      */
     @PostMapping
     public ResponseEntity<CategoryResponse> createCustomCategory(
@@ -48,8 +50,10 @@ public class CategoryController {
     }
 
     /**
-     * Deletes a custom category by name.
-     * DELETE /api/categories/{name}
+     * Deletes one of the current user's custom categories.
+     *
+     * @return 200 OK on success, 403 Forbidden for a default category, or
+     *         400 Bad Request if the category is still in use
      */
     @DeleteMapping("/{name}")
     public ResponseEntity<Map<String, String>> deleteCustomCategory(

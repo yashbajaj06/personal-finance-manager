@@ -19,6 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -103,20 +105,22 @@ class TransactionServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void getTransactions_NoFilters() {
         Transaction t = Transaction.builder().id(1L).amount(new BigDecimal("1000"))
                 .date(LocalDate.now()).category(incomeCategory).user(user).build();
 
         when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(user));
-        when(transactionRepository.findByUserOrderByDateDesc(user)).thenReturn(List.of(t));
+        when(transactionRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(t));
 
-        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", null, null, null);
+        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", null, null, null, null);
 
         assertEquals(1, result.size());
         assertEquals(new BigDecimal("1000"), result.get(0).getAmount());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void getTransactions_WithDateRange() {
         LocalDate start = LocalDate.now().minusDays(30);
         LocalDate end = LocalDate.now();
@@ -125,23 +129,48 @@ class TransactionServiceTest {
                 .date(LocalDate.now().minusDays(5)).category(expenseCategory).user(user).build();
 
         when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(user));
-        when(transactionRepository.findByUserAndDateBetweenOrderByDateDesc(user, start, end)).thenReturn(List.of(t));
+        when(transactionRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(t));
 
-        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", start, end, null);
+        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", start, end, null, null);
         assertEquals(1, result.size());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void getTransactions_WithCategoryFilter() {
         Transaction t = Transaction.builder().id(1L).amount(new BigDecimal("200"))
                 .date(LocalDate.now()).category(expenseCategory).user(user).build();
 
         when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(user));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(expenseCategory));
-        when(transactionRepository.findByUserAndCategoryOrderByDateDesc(user, expenseCategory)).thenReturn(List.of(t));
+        when(transactionRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(t));
 
-        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", null, null, 2L);
+        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", null, null, 2L, null);
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void getTransactions_WithTypeFilter() {
+        Transaction t = Transaction.builder().id(1L).amount(new BigDecimal("5000"))
+                .date(LocalDate.now()).category(incomeCategory).user(user).build();
+
+        when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(user));
+        when(transactionRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(t));
+
+        List<TransactionResponse> result = transactionService.getTransactions("test@example.com", null, null, null, TransactionType.INCOME);
+        assertEquals(1, result.size());
+        assertEquals(TransactionType.INCOME, result.get(0).getType());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void getTransactions_InvalidCategoryThrows() {
+        when(userRepository.findByUsername("test@example.com")).thenReturn(Optional.of(user));
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> transactionService.getTransactions("test@example.com", null, null, 99L, null));
     }
 
     @Test

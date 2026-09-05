@@ -20,36 +20,53 @@ A REST API built with **Spring Boot 3** and **Java 17** for managing personal fi
 ## Getting Started
 
 ### Prerequisites
-- Java 17+
-- Maven 3.8+
+- Java 17+ (only requirement — Maven does **not** need to be installed separately, the project ships with the Maven Wrapper)
 
 ### Build & Run
+
+The repo includes the Maven Wrapper (`mvnw` / `mvnw.cmd`), so it builds and runs the same way on any machine — Windows, macOS, or Linux — without anyone needing Maven pre-installed globally.
 
 ```bash
 # Clone the repo
 git clone https://github.com/YOUR_USERNAME/personal-finance-manager.git
 cd personal-finance-manager
 
-# Build
-mvn clean install -DskipTests
+# Build (Linux/macOS)
+./mvnw clean install -DskipTests
+
+# Build (Windows)
+mvnw.cmd clean install -DskipTests
 
 # Run
-mvn spring-boot:run
+./mvnw spring-boot:run      # Linux/macOS
+mvnw.cmd spring-boot:run    # Windows
 ```
 
 The API will start on `http://localhost:8080`.
 
+If you already have Maven installed globally, the plain `mvn` commands work identically — the wrapper is just there so it also works out of the box for anyone who doesn't.
+
 ### Run Tests
 
 ```bash
-mvn test
+./mvnw test        # Linux/macOS
+mvnw.cmd test       # Windows
 ```
 
 ### Build Deployable JAR
 
 ```bash
-mvn clean package -DskipTests
+./mvnw clean package -DskipTests
 java -jar target/personal-finance-manager-1.0.0.jar
+```
+
+### Run with Docker (no Java/Maven install needed at all)
+
+The most portable option — only Docker is required on the host machine:
+
+```bash
+docker build -t personal-finance-manager .
+docker run -p 8080:8080 personal-finance-manager
 ```
 
 ---
@@ -61,9 +78,12 @@ java -jar target/personal-finance-manager-1.0.0.jar
 3. Connect your GitHub repo
 4. Set:
    - **Environment**: Java
-   - **Build Command**: `mvn clean package -DskipTests`
+   - **Build Command**: `./mvnw clean package -DskipTests`
    - **Start Command**: `java -jar target/personal-finance-manager-1.0.0.jar`
+   - **Environment Variable**: `COOKIE_SECURE=true` (Render serves over HTTPS, so the session cookie should be marked secure in production; it defaults to `false` so the app still works over plain HTTP when run locally)
 5. Deploy!
+
+Alternatively, `render.yaml` in this repo already defines the above and can be used with Render's Blueprint deploy.
 
 ---
 
@@ -129,11 +149,12 @@ Response 201:
 
 #### Get Transactions
 ```
-GET /api/transactions?startDate=2024-01-01&endDate=2024-01-31&categoryId=1
+GET /api/transactions?startDate=2024-01-01&endDate=2024-01-31&categoryId=1&type=INCOME
 
 Response 200:
 { "transactions": [...] }
 ```
+All query parameters are optional and can be combined freely: `startDate`/`endDate` (date range), `categoryId` (from the `id` field returned by `GET /api/categories`), and `type` (`INCOME` or `EXPENSE`).
 
 #### Update Transaction
 ```
@@ -161,11 +182,12 @@ GET /api/categories
 
 Response 200:
 { "categories": [
-    { "name": "Salary", "type": "INCOME", "isCustom": false },
-    { "name": "Food", "type": "EXPENSE", "isCustom": false },
-    { "name": "MyCategory", "type": "EXPENSE", "isCustom": true }
+    { "id": 1, "name": "Salary", "type": "INCOME", "isCustom": false },
+    { "id": 2, "name": "Food", "type": "EXPENSE", "isCustom": false },
+    { "id": 8, "name": "MyCategory", "type": "EXPENSE", "isCustom": true }
 ]}
 ```
+`id` is what you pass as `categoryId` when filtering `GET /api/transactions`.
 
 #### Default Categories
 - INCOME: `Salary`

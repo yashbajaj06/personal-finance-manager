@@ -1,7 +1,7 @@
 package com.finance.manager.entity;
 
 /**
- * Represents whether a transaction is income or an expense.
+ * The two kinds of financial transaction and category supported by the system.
  */
 public enum TransactionType {
     INCOME,

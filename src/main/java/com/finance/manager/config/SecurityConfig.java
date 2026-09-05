@@ -16,6 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
+/**
+ * Configures session-based authentication: only registration and login are
+ * public, every other endpoint requires an authenticated session, and
+ * authentication/authorization failures are returned as JSON (401/403)
+ * rather than Spring Security's default HTML error pages.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -23,6 +29,10 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
 
+    /**
+     * Defines which endpoints are public, enforces authentication on
+     * everything else, and configures JSON responses for 401/403 failures.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -53,11 +63,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * @return the password encoder used to hash and verify user passwords.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * @return the authentication provider that looks up users via
+     *         {@link CustomUserDetailsService} and verifies passwords with {@link #passwordEncoder()}.
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -66,6 +83,9 @@ public class SecurityConfig {
         return provider;
     }
 
+    /**
+     * @return the authentication manager used by the login flow to verify credentials.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

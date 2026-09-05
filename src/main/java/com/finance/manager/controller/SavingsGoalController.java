@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles savings goals CRUD and progress tracking.
+ * REST endpoints for creating, viewing, updating, and deleting the current
+ * user's savings goals.
  */
 @RestController
 @RequestMapping("/api/goals")
@@ -26,8 +27,7 @@ public class SavingsGoalController {
     private final SavingsGoalService savingsGoalService;
 
     /**
-     * Creates a new savings goal.
-     * POST /api/goals
+     * @return 201 Created with the new goal, including its initial computed progress
      */
     @PostMapping
     public ResponseEntity<SavingsGoalResponse> createGoal(
@@ -38,8 +38,7 @@ public class SavingsGoalController {
     }
 
     /**
-     * Gets all savings goals for the current user.
-     * GET /api/goals
+     * @return 200 OK with all of the current user's savings goals
      */
     @GetMapping
     public ResponseEntity<Map<String, List<SavingsGoalResponse>>> getAllGoals(
@@ -49,8 +48,8 @@ public class SavingsGoalController {
     }
 
     /**
-     * Gets a specific savings goal by ID.
-     * GET /api/goals/{id}
+     * @return 200 OK with the goal, 403 Forbidden if it belongs to another
+     *         user, or 404 Not Found if it does not exist
      */
     @GetMapping("/{id}")
     public ResponseEntity<SavingsGoalResponse> getGoal(
@@ -61,8 +60,9 @@ public class SavingsGoalController {
     }
 
     /**
-     * Updates target amount and/or date of a goal.
-     * PUT /api/goals/{id}
+     * Updates a goal's target amount and/or target date.
+     *
+     * @return 200 OK with the updated goal, or 403 Forbidden if it belongs to another user
      */
     @PutMapping("/{id}")
     public ResponseEntity<SavingsGoalResponse> updateGoal(
@@ -74,8 +74,7 @@ public class SavingsGoalController {
     }
 
     /**
-     * Deletes a savings goal.
-     * DELETE /api/goals/{id}
+     * @return 200 OK on success, or 403 Forbidden if the goal belongs to another user
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteGoal(
